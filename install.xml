@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
+<!-- --------------------------------------------------------------------------
+  package "Smush.it" Mod for Simple Machines Forum (SMF) V2.0
+  author Spuds
+  copyright (c) 2011 Spuds
+  license Mozilla Public License version 2.0 http://mozilla.org/MPL/1.1/
+--------------------------------------------------------------------------- -->
+<modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
+	<id>spuds:Smush.it</id>
+
+	<file name="$sourcedir/ManageAttachments.php">
+		<operation>
+			<search position="before"><![CDATA[		'moveAvatars' => 'MoveAvatars',
+		'repair' => 'RepairAttachments',]]></search>
+			<add><![CDATA[
+		'smushit' => 'smushitAttachments',
+		'smushitbrowse' => 'SmushitBrowse',
+		'smushitselect' => 'SmushitSelect',]]></add>
+		</operation>
+
+		<operation>
+			<search position="after"><![CDATA[// The main attachment management function.]]></search>
+			<add><![CDATA[// Smush.it Mod
+global $sourcedir;
+require_once($sourcedir . '/smushit-Subs.php');
+
+]]></add>
+		</operation>
+	</file>
+
+	<file name="$themedir/ManageAttachments.template.php">
+	<operation>
+	<search position="replace"><![CDATA[				<a href="', $scripturl, '?action=admin;area=manageattachments;sa=browse;thumbs">', $context['browse_type'] === 'thumbs' ? '<img src="' . $settings['images_url'] . '/selected.gif" alt="&gt;" /> ' : '', $txt['attachment_manager_thumbs'], '</a>
+			</div>]]></search>
+	<add><![CDATA[				<a href="', $scripturl, '?action=admin;area=manageattachments;sa=browse;thumbs">', $context['browse_type'] === 'thumbs' ? '<img src="' . $settings['images_url'] . '/selected.gif" alt="&gt;" /> ' : '', $txt['attachment_manager_thumbs'], '</a> |
+				<a href="', $scripturl, '?action=admin;area=manageattachments;sa=smushitbrowse">', $context['browse_type'] === 'smushit' ? '<img src="' . $settings['images_url'] . '/selected.gif" alt="&gt;" /> ' : '', $txt['smushit'], '</a>
+			</div>]]></add>
+	</operation>
+
+	<operation>
+		<search position="before"><![CDATA[		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['attachment_integrity_check_desc'], '</p>
+					<input type="submit" name="submit" value="', $txt['attachment_check_now'], '" class="button_submit" />
+				</form>
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>]]></search>
+
+		<add><![CDATA[
+
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['smushit_attachment_check'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=manageattachments;sa=smushit;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['smushit_attachment_check_desc'], '</p><br />
+					', $txt['smushit_attachments_age'], ' <input type="text" name="smushitage" value="25" size="4" class="input_text" /> ', $txt['days_word'], '<br />
+					<input type="submit" name="submit" value="', $txt['smushit_attachment_now'], '" class="button_submit" />
+				</form>
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>
+	]]></add>
+	</operation>
+
+	<operation>
+	<search position="end" />
+	<add><![CDATA[
+function template_attachment_smushit()
+{
+	global $context, $txt, $settings;
+
+	if ($context['completed'])
+	{
+		echo '
+	<div id="manage_attachments">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['smushit_attachments_complete'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">
+				<p>', $txt['smushit_attachments_complete_desc'], '</p>
+				<table class="table_grid" cellspacing="0" width="100%">
+				<thead>
+					<tr class="catbg">
+						<th class="first_th"></th>
+						<th>#</th>
+						<th>', $txt['attachment_name'], '</th>
+						<th class="last_th">', $txt['smushit_attachments'], '</th>
+					</tr>
+				</thead>
+				<tbody>';
+
+		// Loop through each result reporting the status
+		$i = 1;
+		$savings = 0;
+		$alternate = true;
+
+		if (isset($context['smushit_results']))
+		{
+			foreach ($context['smushit_results'] as $attach_id => $result)
+			{
+				$attach_id = str_replace('+', '', $attach_id, $count);
+				list($filename, $result) = explode('|', $result, 2);
+				echo '
+						<tr>
+							<td class="', $alternate ? 'windowbg2' : 'windowbg', '"><img src="' . $settings['images_url'] . '/icons/' . (($count != 0) ? 'field_valid' : 'field_invalid') . '.gif' . '"/></td>
+							<td class="', $alternate ? 'windowbg2' : 'windowbg', '">' . $i . '</td>
+							<td class="', $alternate ? 'windowbg2' : 'windowbg', '">[' . $attach_id . '] ' . $filename . '</td>
+							<td class="', $alternate ? 'windowbg2' : 'windowbg', '">' . $result . '</td>
+						</tr>';
+				$alternate = !$alternate;
+				$i++;
+
+				// keep track of how great we are
+				if ($count != 0 && preg_match('~.*\((\d*)\).*~', $result, $thissavings))
+					$savings += $thissavings[1];
+			}
+		}
+
+		// Show the total savings in some form the user will understnad
+		$units = array('B', 'KB', 'MB', 'GB', 'TB');
+		$savings = max($savings, 0);
+		$pow = floor(($savings ? log($savings) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+		$savings /= pow(1024, $pow);
+
+		echo '
+				</tbody>
+				</table>
+				<br /><p><strong>' . $txt['smushit_attachments_savings'] . ' ' . round($savings, 2) . ' ' . $units[$pow] . '</strong></p>
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>
+	</div>
+	<br class="clear" />';
+	}
+}
+]]></add>
+	</operation>
+	</file>
+
+	<file name="$sourcedir/ScheduledTasks.php">
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+function scheduled_smushit()
+{
+	global $txt, $sourcedir, $modSettings;
+
+	require_once($sourcedir . '/smushit-Subs.php');
+
+	// Need to do this so we have some basic $txt available.
+	loadEssentialThemeData();
+	loadLanguage('Admin');
+
+	// Get todays attachment files
+	$size = (!empty($modSettings['smushit_attachments_size']) ? 1024 * $modSettings['smushit_attachments_size'] : 0);
+	$age = time() - (49 * 60 * 60); // buffer
+	$files = smushit_getFiles(0, 0, '', 'unsmushed', $size, $age);
+
+	// While we have attachments .... smush.em
+	foreach ($files as $row)
+	{
+		smushitMain($row);
+
+		// Try get more time...
+		@set_time_limit(60);
+		if (function_exists('apache_reset_timeout'))
+			@apache_reset_timeout();
+
+	}
+
+	return true;
+}
+]]></add>
+	</operation>
+	</file>
+
+	<file name="$sourcedir/ManageSettings.php">
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+function igm_smushit(&$config_vars)
+{
+	// called from our integration hook
+	$config_vars += array(
+		array('check', 'smushit_attachments_png'),
+		array('int', 'smushit_attachment_size'),
+	);
+}
+
+]]></add>
+		</operation>
+	</file>
+
+</modification>

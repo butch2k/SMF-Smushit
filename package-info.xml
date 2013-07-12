@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<name>Smush.it!</name>
+	<id>spuds:Smush.it</id>
+	<type>modification</type>
+	<version>0.2</version>
+
+	<install for="2.0 - 2.0.99">
+		<readme type="file" parsebbc="true">readme.txt</readme>
+		<code>add_remove_hooks.php</code>
+		<database>add_settings.php</database>
+		<modification>install.xml</modification>
+		<modification>language.xml</modification>
+		<modification>language-utf8.xml</modification>
+		<require-file name="smushit-Subs.php" destination="$sourcedir" />
+		<require-dir name="smushit" destination="$boarddir" />
+		<redirect url="index.php?action=admin;area=modsettings;sa=general" timeout="7000">redirect.txt</redirect>
+	</install>
+	
+	<uninstall for="2.0 - 2.0.99">
+		<code>add_remove_hooks.php</code>
+		<database>remove_settings.php</database>
+		<modification reverse="true">install.xml</modification>
+		<modification reverse="true">language.xml</modification>
+		<modification reverse="true">language-utf8.xml</modification>
+		<remove-file name="$sourcedir/smushit-Subs.php" />
+		<remove-dir name="$boarddir/smushit" />
+	</uninstall>
+</package-info>
