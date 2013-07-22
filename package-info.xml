@@ -5,6 +5,16 @@
 	<id>spuds:Smush.it</id>
 	<type>modification</type>
 	<version>0.2</version>
+	<license><![CDATA[
+/**
+ * Smush.it
+ *
+ * @author spuds
+ * @license MPL 1.1 http://mozilla.org/MPL/1.1/
+ *
+ * @version 0.2
+ */
+]]></license>
 
 	<install for="2.0 - 2.0.99">
 		<readme type="file" parsebbc="true">readme.txt</readme>
@@ -17,7 +27,7 @@
 		<require-dir name="smushit" destination="$boarddir" />
 		<redirect url="index.php?action=admin;area=modsettings;sa=general" timeout="7000">redirect.txt</redirect>
 	</install>
-	
+
 	<uninstall for="2.0 - 2.0.99">
 		<code>add_remove_hooks.php</code>
 		<database>remove_settings.php</database>

@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * @package "Smush.it" Mod for Simple Machines Forum (SMF) V2.0
  * @author Spuds
  * @copyright (c) 2011 Spuds
@@ -10,6 +9,7 @@
  * @version 0.2
  *
  */
+
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
@@ -66,7 +66,7 @@ function smushitAttachments()
 
 	// update the pointer and see if we have more to do ....
 	$_GET['step'] += $chunk_size;
-	if ((int) $_GET['step'] < $images)
+	if ($_GET['step'] < $images)
 		pauseAttachmentSmushit($images);
 
 	// Got here we must be doing well, well as in we did something, first lets clean up
@@ -485,7 +485,7 @@ function smushitMain($file)
 					else
 					{
 						// Image failed validation, skipping
-						$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_verify'];
+						$context['smushit_results'][$file['id_attach']] = $file['filename'] . $file['width'] . $file['height'] . '|' . $txt['smushit_attachments_verify'];
 					}
 				}
 				else
@@ -673,4 +673,3 @@ if (!function_exists('json_decode'))
 		return (object) $result;
 	}
 }
-?>

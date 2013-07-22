@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
-<!-- --------------------------------------------------------------------------
+<!--
+  ===============================================================================
   package "Smush.it" Mod for Simple Machines Forum (SMF) V2.0
   author Spuds
-  copyright (c) 2011 Spuds
-  license Mozilla Public License version 2.0 http://mozilla.org/MPL/1.1/
---------------------------------------------------------------------------- -->
+  copyright (c) 2011-2013 Spuds
+  license license.txt (included with package) MPL 1.1 http://mozilla.org/MPL/1.1/
+  ===============================================================================
+-->
 <modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
 	<id>spuds:Smush.it</id>
 
